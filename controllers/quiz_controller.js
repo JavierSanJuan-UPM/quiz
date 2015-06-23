@@ -46,19 +46,19 @@ exports.create = function(req, res) {
   var quiz = models.Quiz.build(req.body.quiz);
 
   // guarda en DB los campos pregunta y respuesta de quiz
-  quiz
-  .validate()
-  .then(function(err) {
-    if ( err ) {
-      res.render('quizes/new', { quiz:quiz, errors: err.errors });
-    } else {
-      quiz
-      .save({fields: ["pregunta", "respuesta"]})
-      .then(function() {
-        res.redirect('/quizes');  // Redireccion HTTP a lista de preguntas
-      });
-    }
-  });
+  var err = quiz.validate();
+  if ( err ) {
+    var i = 0;
+    var errors = [];
+    for ( var p in err ) errors[i++] = { message: err[p] };
+    res.render('quizes/new', { quiz:quiz, errors: errors });
+  } else {
+    quiz
+    .save({fields: ["pregunta", "respuesta"]})
+    .then(function() {
+      res.redirect('/quizes');  // Redireccion HTTP a lista de preguntas
+    });
+  }
 };
 
 // GET /quizes/:quizId
