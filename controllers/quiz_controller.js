@@ -51,7 +51,7 @@ exports.create = function(req, res) {
     var i = 0;
     var errors = [];
     for ( var p in err ) errors[i++] = { message: err[p] };
-    res.render('quizes/new', { quiz:quiz, errors: errors });
+    res.render('quizes/new', { quiz: quiz, errors: errors });
   } else {
     quiz
     .save({fields: ["pregunta", "respuesta"]})
@@ -81,7 +81,34 @@ exports.answer = function(req, res) {
   );
 };
 
+// GET /quizes/:quizId/edit
+exports.edit = function(req, res) {
+  var quiz = req.quiz;  // autoload de instancia de quiz
+  res.render('quizes/edit', { quiz: quiz, errors: [] });
+};
+
+// PUT /quizes/:quizId
+exports.update = function(req, res) {
+  req.quiz.pregunta = req.body.quiz.pregunta;
+  req.quiz.respuesta = req.body.quiz.respuesta;
+
+  // guarda en DB los campos pregunta y respuesta de quiz
+  var err = req.quiz.validate();
+  if ( err ) {
+    var i = 0;
+    var errors = [];
+    for ( var p in err ) errors[i++] = { message: err[p] };
+    res.render('quizes/edit', { quiz: req.quiz, errors: errors });
+  } else {
+    req.quiz
+    .save({fields: ["pregunta", "respuesta"]})
+    .then(function() {
+      res.redirect('/quizes');  // Redireccion HTTP a lista de preguntas
+    });
+  }
+};
+
 // GET /author
 exports.author = function(req, res) {
   res.render('author', { errors: [] });
-}
+};
