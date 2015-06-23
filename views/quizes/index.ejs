@@ -6,6 +6,17 @@
   <% var i; for ( i = 0; i < quizes.length; i++) { %>
     <tr>
       <td><a href="quizes/<%= quizes[i].id %>"><%= quizes[i].pregunta %></a></td>
+      <% if ( typeof(quizes[i].categoria) === 'undefined' || quizes[i].categoria === 'otro' ) { %>
+        <td>(Otro)</td>
+      <% } else if ( quizes[i].categoria === 'humanidades' ) { %>
+        <td>(Humanidades)</td>
+      <% } else if ( quizes[i].categoria === 'ocio' ) { %>
+        <td>(Ocio)</td>
+      <% } else if ( quizes[i].categoria === 'ciencia' ) { %>
+        <td>(Ciencia)</td>
+      <% } else if ( quizes[i].categoria === 'tecnologia' ) { %>
+        <td>(Tecnología)</td>
+      <% } %>
       <td><a href="quizes/<%= quizes[i].id %>/edit"><button>Editar</button></a></td>
       <td>
         <form method="post" action="quizes/<%= quizes[i].id %>?_method=delete">
