@@ -26,41 +26,44 @@ exports.index = function(req, res, next) {
 
   // busca elementos segun filtro
   models.Quiz.findAll(filtro)
-  .then(function(quizes) { res.render('quizes/index', { quizes: quizes }); })
+  .then(function(quizes) { res.render('quizes/index', { quizes: quizes, errors: [] }); })
   .catch(function(error) { next(error); });
 };
 
 // GET /quizes/new
 exports.new = function(req, res) {
   var quiz = models.Quiz.build(
-    { pregunta: "Pregunta",
-      respuesta: "Respuesta"
+    { pregunta: "",
+      respuesta: ""
     }
   );
 
-  res.render('quizes/new', { quiz: quiz });
+  res.render('quizes/new', { quiz: quiz, errors: [] });
 };
 
 // POST /quizes/create
 exports.create = function(req, res) {
   var quiz = models.Quiz.build(req.body.quiz);
-  console.log(quiz.pregunta);
-  console.log(quiz.respuesta);
 
   // guarda en DB los campos pregunta y respuesta de quiz
-  if ( quiz.pregunta !== "" && quiz.respuesta !== "" ) {
-    quiz.save({fields: ["pregunta", "respuesta"]})
-    .then(function() {
-      res.redirect('/quizes');  // Redireccion HTTP a lista de preguntas
-    });
-  } else {
-    res.redirect('/quizes/new');
-  }
+  quiz
+  .validate()
+  .then(function(err) {
+    if ( err ) {
+      res.render('quizes/new', { quiz:quiz, errors: err.errors });
+    } else {
+      quiz
+      .save({fields: ["pregunta", "respuesta"]})
+      .then(function() {
+        res.redirect('/quizes');  // Redireccion HTTP a lista de preguntas
+      });
+    }
+  });
 };
 
 // GET /quizes/:quizId
 exports.show = function(req, res) {
-  res.render('quizes/show', {quiz: req.quiz});
+  res.render('quizes/show', {quiz: req.quiz, errors: []});
 };
 
 // GET /quizes/:quizId/answer
@@ -69,10 +72,16 @@ exports.answer = function(req, res) {
   if ( req.query.respuesta === req.quiz.respuesta ) {
     resultado = 'Correcto';
   }
-  res.render('quizes/answer', {quiz:req.quiz, respuesta: resultado});
+  res.render('quizes/answer',
+    {
+      quiz: req.quiz,
+      respuesta: resultado,
+      errors: []
+    }
+  );
 };
 
 // GET /author
 exports.author = function(req, res) {
-  res.render('author');
+  res.render('author', { errors: [] });
 }
