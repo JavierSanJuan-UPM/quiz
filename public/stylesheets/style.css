@@ -14,3 +14,5 @@ nav span              { margin: 0px 10px 0px 0px; }
 
 #cssTable             { width: 100%; }
 #cssTable td          { text-align:center; vertical-align:middle; }
+
+.right                { float: right; }
