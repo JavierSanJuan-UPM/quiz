@@ -1,3 +1,4 @@
+// Obtenemos middlewares
 var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
@@ -9,13 +10,14 @@ var methodOverride = require('method-override');
 var session = require('express-session');
 var routes = require('./routes/index');
 
+// Creamos app Express
 var app = express();
 
-// view engine setup
+// Configuracion del motor de vistas
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-// uncomment after placing your favicon in /public
+// Activamos uso de middlewares
 app.use(favicon(__dirname + '/public/favicon.ico'));
 app.use(logger('dev'));
 app.use(bodyParser.json());
@@ -28,26 +30,42 @@ app.use(partials());
 
 // Helpers dinamicos
 app.use(function(req, res, next) {
-  // guardar path en session.redir para despues de login
+  // Guardar path en session.redir para despues de login
   if ( !req.path.match(/\/login|\/logout/) ) {
     req.session.redir = req.path;
   }
 
   // Hacer visible req.session en las vistas
   res.locals.session = req.session;
+
   next();
 });
 
+// Middleware de autologout
+app.use(function(req, res, next) {
+  if ( req.session.user ) {
+    if ( req.session.timeout <= Date.now() ) {
+      // Destruimos sesion
+      delete req.session.user;
+      delete req.session.timeout;
+    } else {
+      req.session.timeout = Date.now() + 120000;
+    }
+  }
+  next();
+});
+
+// Activamos enrutador
 app.use('/', routes);
 
-// catch 404 and forward to error handler
+// Capturamos errores 404 and y los redirigimos al gestor de errores
 app.use(function(req, res, next) {
     var err = new Error('Ruta no encontrada: ' + req.url);
     err.status = 404;
     next(err);
 });
 
-// error handlers
+// Gestores de errores
 
 // development error handler
 // will print stacktrace
